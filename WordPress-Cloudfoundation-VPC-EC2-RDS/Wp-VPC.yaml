@@ -1,0 +1,207 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Network structure 
+
+Metadata:
+
+    Authors:
+        Description:  Fernando Brambilla de Mello
+
+Mappings: 
+  RegionMap: 
+    us-east-1: 
+       HVM64: ami-0cebb45b34604efb8 
+
+Parameters:
+  Environment:
+    Type: String
+
+  VpcName:
+    Type: String
+
+  VpcCIDR:
+    Type: String
+
+  PublicSubnet1CIDR:
+    Type: String
+   
+  PublicSubnet2CIDR:
+    Type: String
+    
+  PrivateSubnet1CIDR:
+    Type: String
+   
+  PrivateSubnet2CIDR:
+    Type: String
+
+  SshCidrAllow:
+    Type: String
+    
+
+Resources:
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}
+
+  PublicSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-Public1
+
+  PublicSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-Public2
+
+  PrivateSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PrivateSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-Private1
+
+  PrivateSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-Private2
+
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Join [_, [!Ref "AWS::StackName"]]
+        - Key: Network
+          Value: !Sub ${VpcName}-${Environment}-PublicInternet
+
+  GatewayToInternet:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-PublicRouteTable
+
+  PublicRoute:
+    Type: "AWS::EC2::Route"
+    DependsOn: GatewayToInternet
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  NatGateway:
+    Type: "AWS::EC2::NatGateway"
+    DependsOn: NatPublicIP
+    Properties:
+      AllocationId: !GetAtt NatPublicIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+
+  NatPublicIP:
+    Type: "AWS::EC2::EIP"
+    DependsOn: VPC
+    Properties:
+      Domain: vpc
+
+  PrivateRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Sub ${VpcName}-${Environment}-PrivateRouteTable
+
+  PrivateRoute:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref PrivateSubnet2
+      RouteTableId: !Ref PrivateRouteTable
+
+Outputs:
+  myVpc:
+    Description: The ID of the VPC
+    Value: !Ref VPC
+    Export:
+      Name: "myVpc"
+
+  Subnet1:
+    Description: The ID of the Subnet 1
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: "Subnet1"
+  
+  Subnet2:
+    Description: The ID of the Subnet 2
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: "Subnet2"
+
+  Subnet3:
+    Description: The ID of the Subnet 1
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: "Subnet3"
+  
+  Subnet4:
+    Description: The ID of the Subnet 2
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: "Subnet4"
+

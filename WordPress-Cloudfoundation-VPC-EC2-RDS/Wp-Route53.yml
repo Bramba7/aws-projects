@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: DataBase for WordPress
+
+Metadata:
+
+    Authors:
+        Description:  Fernando Brambilla de Mello
+
+Parameters:
+    ec2Ip:
+        Type: String
+
+Resources:
+    DNS:
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneId: training.trambo.cloud
+            Name: bramba.training.trambo.cloud
+            ResourceRecords: !Ref ec2Ip
+            TTL: '900'      
+            Type: A
+    
+

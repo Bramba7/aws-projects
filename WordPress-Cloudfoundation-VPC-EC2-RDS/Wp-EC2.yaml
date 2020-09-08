@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: EC2 for WordPress
+
+Metadata:
+
+    Authors:
+        Description:  Fernando Brambilla de Mello
+
+Mappings:
+  AMI2RegionMap:
+    us-east-1:
+      'AmazonLinux2': ami-0cebb45b34604efb8 
+      'AmazonLinux': ami-00514a528eadbc95b
+
+Parameters:
+  WebSecurityGroup:
+    Type: String
+  
+  Subnet1:
+    Type: String
+
+  InstanceName:
+    Type: String
+
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+
+  AmiType:
+    Description: Type of AMI
+    Type: String
+  MasterUsername:
+    Description: Database User
+    Type: String
+    
+  MasterUserPassword:
+    Description: Database Pwd
+    Type: String
+
+  DBName: 
+    Description: Database Pwd
+    Type: String
+
+  DBEndpoint:
+    Description: Database EndPoint code
+    Type: String
+
+Resources:
+    WebInstance:
+        Type: AWS::EC2::Instance
+        Properties:
+          Tags:
+            - Key: Name
+              Value: !Ref InstanceName
+          InstanceType:
+            Ref: InstanceType
+          ImageId:
+            Fn::FindInMap:
+            - AMI2RegionMap
+            - Ref: AWS::Region
+            - 'AmazonLinux2'
+          KeyName:
+            Ref: KeyName
+          UserData:
+            Fn::Base64:                              
+              !Sub |
+                  #!/bin/bash 
+                  yum update -y
+                  yum install httpd 
+                  yum install -y amazon-linux-extras
+                  amazon-linux-extras enable php7.4 
+                  yum clean metadata -y
+                  yum install php php-{pear,cgi,common,curl,mbstring,gd,mysqlnd,gettext,bcmath,json,xml,fpm,intl,zip,imap} -y
+                  cd /var/www/html
+                  echo "Healthy" > healthy.html
+                  wget https://wordpress.org/latest.tar.gz
+                  tar -xzf latest.tar.gz
+                  cp -r wordpress/* /var/www/html/
+                  rm -r wordpress
+                  rm -rf latest.tar.gz
+                  chmod -R 755 wp-content
+                  chown -R apache:apache wp-content
+                  chkconfig httpd on
+
+                  sed -i 's/database_name_here/${DBName}/g' wp-config-sample.php
+                  sed -i 's/username_here/${MasterUsername}/g' wp-config-sample.php
+                  sed -i 's/password_here/${MasterUserPassword}/g' wp-config-sample.php
+                  sed -i 's/localhost/${DBEndpoint}/g' wp-config-sample.php
+
+                  curl https://api.wordpress.org/secret-key/1.1/salt/ --output saltKey.txt
+                  sed -i -e '/AUTH_KEY/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/LOGGED_IN_KEY/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/NONCE_KEY/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/AUTH_SALT/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/SECURE_AUTH_SALT/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/LOGGED_IN_SALT/{r saltKey.txt/1' -e 'd}' wp-config-sample.php
+                  sed -i -e '/NONCE_SALT/{r saltKey.txt' -e 'd}' wp-config-sample.php
+
+                  mv wp-config-sample.php wp-config.php
+                  
+                  service httpd start
+          NetworkInterfaces: 
+            - AssociatePublicIpAddress: "true"
+              DeviceIndex: "0"
+              GroupSet: 
+                - Ref: WebSecurityGroup
+              SubnetId: 
+                Ref: Subnet1
+Outputs:
+  ec2Ip:
+    Description: Server Public IP
+    Value: !GetAtt WebInstance.PublicIp
+    Export:
+      Name: !Sub "ec2Ip"
