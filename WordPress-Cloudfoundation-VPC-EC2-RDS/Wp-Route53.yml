@@ -15,9 +15,9 @@ Resources:
     DNS:
         Type: AWS::Route53::RecordSet
         Properties:
-            HostedZoneId: training.trambo.cloud
-            Name: bramba.training.trambo.cloud
-            ResourceRecords: !Ref ec2Ip
+            HostedZoneId: <Your Hosted zone ID>
+            Name: bramba
+            ResourceRecords: [!Ref ec2Ip]
             TTL: '900'      
             Type: A
     
