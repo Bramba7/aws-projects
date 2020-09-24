@@ -266,14 +266,14 @@ Resources:
         WebSecurityGroup: !GetAtt  StackSG.Outputs.WebSecurityGroup
         DBEndpoint:  !GetAtt  StackRDS.Outputs.DBEndpoint 
 
-  # StackRoute53: 
-  #   Type: AWS::CloudFormation::Stack
-  #   DependsOn: StackEC2 
-  #   Properties: 
-  #     TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-Route53.yaml"  
-  #     TimeoutInMinutes: '60'
-  #     Parameters:
-  #       ec2Ip:  !GetAtt  StackEC2.Outputs.ec2Ip 
+  StackRoute53: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn: StackEC2 
+    Properties: 
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-Route53.yaml"  
+      TimeoutInMinutes: '60'
+      Parameters:
+         ec2Ip:  !GetAtt  StackEC2.Outputs.ec2Ip 
 
 
  
