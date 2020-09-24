@@ -44,7 +44,7 @@ You can launch this CloudFormation stack, using your account, in the following A
 - Routing tables for private subnets - routing through NAT Gateway
 - Multiple VPC Security Groups
 - Amazon Relational Database Service (Amazon RDS) Aurora cluster - in private subnets (data)
-- Amazon Elastic Compute Cloud (_amazon EC2) instance
+- Amazon Elastic Compute Cloud (Amazon EC2) instance
 - Amazon Route53 DNS record set 
 
 ### Input Parameters
