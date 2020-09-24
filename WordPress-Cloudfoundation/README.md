@@ -18,7 +18,7 @@ The repository consists of a set of nested templates which are run in order from
 ## Steps to Run
 To launch the entire stack and deploy a WordPress site on AWS, click on one of the ***Launch Stack*** links below or download the Master template and launch it locally.
 
-You can use your account to lunch 
+You can use your account to launch 
 
 You can launch this CloudFormation stack, using your account, in the following AWS Regions:
 
