@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Route53 for WordPress
+
+Metadata:
+
+    Authors:
+        Description:  Fernando Brambilla de Mello
+
+Parameters:
+    ec2Ip:
+        Type: String
+
+Resources:
+    DNS:
+        Type: AWS::Route53::RecordSet
+        Properties:
+            HostedZoneId: #<CODE>
+            Name: #<WESITE NAME>
+            ResourceRecords: [!Ref ec2Ip]
+            TTL: '900'      
+            Type: A
+    
+
