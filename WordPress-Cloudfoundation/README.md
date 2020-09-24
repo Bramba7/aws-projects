@@ -98,7 +98,5 @@ Review the template here [Wp-RDS.yaml](templates/Wp-RDS.yaml)
 Review the template here [Wp-EC2.yaml](templates/Wp-EC2.yaml)
 
 ## Amazon Route 53 Template
-Review the template here [Wp-Route53.yaml](templates/Wp-Route53.yaml.yaml)
-
-
+Review the template here [Wp-Route53.yaml](templates/Wp-Route53.yaml)
 
