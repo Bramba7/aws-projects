@@ -8,12 +8,12 @@ This reference architecture provides a set of YAML templates for deploying WordP
 
 ## Schematic
 
-![](images/schematic.jpeg)
+![schematic](images/schematic.jpeg)
 
 The repository consists of a set of nested templates which are run in order from the master template. Run the master template to create the entire stack, entering the appropriate parameters. Nested templates can be run individually in order, entering the appropriate input parameters for each stack.
 ## Parameters
 
-![](images/parameters.png)
+![parameters](images/parameters.png)
 
 ## Steps to Run
 To launch the entire stack and deploy a WordPress site on AWS, click on one of the ***Launch Stack*** links below or download the Master template and launch it locally.
