@@ -1,6 +1,6 @@
 # **Hosting WordPress using AWS CloudFormation**
 
-### Version 2.3.7
+### Version 2.3.8
 
 ---
 
