@@ -2,83 +2,82 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: WordPress Project
 
-Mappings: 
-  RegionMap: 
-    us-east-1: 
-      'AmazonLinux2': ami-0cebb45b34604efb8 
-      'AmazonLinux': ami-00514a528eadbc95b 
+Mappings:
+  RegionMap:
+    us-east-1:
+      "AmazonLinux2": ami-0cebb45b34604efb8
+      "AmazonLinux": ami-00514a528eadbc95b
 Metadata:
+  Authors:
+    Description: Fernando Brambilla de Mello
 
-    Authors:
-        Description:  Fernando Brambilla de Mello
-    
-    AWS::CloudFormation::Interface:
-      ParameterGroups:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
       - Label:
           default: Network
         Parameters:
-            - VpcName
-            - VpcCIDR
-            - PublicSubnet1CIDR
-            - PublicSubnet2CIDR
-            - PrivateSubnet1CIDR
-            - PrivateSubnet2CIDR
-            - SshCidrAllow
+          - VpcName
+          - VpcCIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - SshCidrAllow
       - Label:
           default: EC2 Instance
         Parameters:
-            - InstanceName
-            - InstanceType
-            - KeyName
-            - AmiType
+          - InstanceName
+          - InstanceType
+          - KeyName
+          - AmiType
       - Label:
           default: RDS Instance
         Parameters:
-            - DBInstanceId
-            - DBName
-            - MasterUsername
-            - MasterUserPassword
-            - Engine
-            - DBInstanceClass
-            - AllocatedStorage
-  
-      ParameterLabels:
-        VpcName:
-          default: VPC name
-        VpcCIDR:
-          default: VpcCidr
-        PublicSubnet1CIDR:
-          default: Public Subnet 1
-        PublicSubnet2CIDR:
-          default: Public Subnet 2
-        PrivateSubnet1CIDR:
-          default: Private Subnet 1
-        PrivateSubnet2CIDR:
-          default: Private Subnet 2
-        SshCidrAllow:
-          default: SSH CIDR 
-        InstanceName:
-          default: Instance name
-        InstanceType:
-          default: Instance Size
-        KeyName:
-          default: SSH access key
-        AmiType:
-          default: AMI type
-        DBInstanceId:
-          default: The RDS DB Instance Identifier
-        DBName:
-          default: The RDS DB Instance Name
-        MasterUsername:
-          default: The RDS DB Instance UserName
-        MasterUserPassword:
-          default: The RDS DB Instance Password
-        Engine:
-          default: The RDS DB Engine Type
-        DBInstanceClass:
-          default: The RDS DB Instance Type
-        AllocatedStorage:
-          default: The RDS DB Size in GB
+          - DBInstanceId
+          - DBName
+          - MasterUsername
+          - MasterUserPassword
+          - Engine
+          - DBInstanceClass
+          - AllocatedStorage
+
+    ParameterLabels:
+      VpcName:
+        default: VPC name
+      VpcCIDR:
+        default: VpcCidr
+      PublicSubnet1CIDR:
+        default: Public Subnet 1
+      PublicSubnet2CIDR:
+        default: Public Subnet 2
+      PrivateSubnet1CIDR:
+        default: Private Subnet 1
+      PrivateSubnet2CIDR:
+        default: Private Subnet 2
+      SshCidrAllow:
+        default: SSH CIDR
+      InstanceName:
+        default: Instance name
+      InstanceType:
+        default: Instance Size
+      KeyName:
+        default: SSH access key
+      AmiType:
+        default: AMI type
+      DBInstanceId:
+        default: The RDS DB Instance Identifier
+      DBName:
+        default: The RDS DB Instance Name
+      MasterUsername:
+        default: The RDS DB Instance UserName
+      MasterUserPassword:
+        default: The RDS DB Instance Password
+      Engine:
+        default: The RDS DB Engine Type
+      DBInstanceClass:
+        default: The RDS DB Instance Type
+      AllocatedStorage:
+        default: The RDS DB Size in GB
 
 Parameters:
   VpcName:
@@ -136,15 +135,15 @@ Parameters:
     Type: String
     Default: t2.micro
     AllowedValues:
-    - t2.nano
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - m4.large
-    - m3.medium
-    - c4.large
-    - c3.large
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - m4.large
+      - m3.medium
+      - c4.large
+      - c3.large
 
   KeyName:
     Description: The EC2 Key Pair to allow SSH access to the instances
@@ -154,9 +153,9 @@ Parameters:
   AmiType:
     Description: what kind of AMI
     Type: String
-    Default: AmazonLinux2 
+    Default: AmazonLinux2
     AllowedValues:
-      - AmazonLinux2 
+      - AmazonLinux2
       - AmazonLinux
 
   DBInstanceId:
@@ -196,19 +195,19 @@ Parameters:
     AllowedValues:
       - db.t2.micro
       - db.t2.small
-      
+
   AllocatedStorage:
     Description: The allocated storage size, specified in gigabytes (GB).
     Type: String
     ConstraintDescription: "Value must be a valid number between 10-16384."
     Default: 10
 
-Resources: 
-  StackVPC: 
+Resources:
+  StackVPC:
     Type: AWS::CloudFormation::Stack
-    Properties: 
-      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-VPC.yaml" 
-      TimeoutInMinutes: '60'
+    Properties:
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-VPC.yaml"
+      TimeoutInMinutes: "60"
       Parameters:
         VpcName: !Ref VpcName
         VpcCIDR: !Ref VpcCIDR
@@ -218,42 +217,41 @@ Resources:
         PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
         SshCidrAllow: !Ref SshCidrAllow
 
-  StackSG: 
+  StackSG:
     Type: AWS::CloudFormation::Stack
-    DependsOn: StackVPC 
-    Properties: 
-      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-SecurityGroups.yaml" 
-      TimeoutInMinutes: '60'
+    DependsOn: StackVPC
+    Properties:
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-SecurityGroups.yaml"
+      TimeoutInMinutes: "60"
       Parameters:
         SshCidrAllow: !Ref SshCidrAllow
-        myVpc: !GetAtt  StackVPC.Outputs.myVpc 
-        Subnet3: !GetAtt  StackVPC.Outputs.Subnet3 
-        Subnet4: !GetAtt  StackVPC.Outputs.Subnet4 
-  
-  StackRDS: 
+        myVpc: !GetAtt StackVPC.Outputs.myVpc
+        Subnet3: !GetAtt StackVPC.Outputs.Subnet3
+        Subnet4: !GetAtt StackVPC.Outputs.Subnet4
+
+  StackRDS:
     Type: AWS::CloudFormation::Stack
-    DependsOn: StackSG 
-    Properties: 
-      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-RDS.yaml" 
-      TimeoutInMinutes: '60'
-      Parameters:                   
+    DependsOn: StackSG
+    Properties:
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-RDS.yaml"
+      TimeoutInMinutes: "60"
+      Parameters:
         DBInstanceId: !Ref DBInstanceId
         DBName: !Ref DBName
         MasterUsername: !Ref MasterUsername
         MasterUserPassword: !Ref MasterUserPassword
         Engine: !Ref Engine
         DBInstanceClass: !Ref DBInstanceClass
-        AllocatedStorage: !Ref AllocatedStorage    
-        RDSSecurityGroup: !GetAtt  StackSG.Outputs.RDSSecurityGroup
-        RDBSubnetGroup: !GetAtt  StackSG.Outputs.RDBSubnetGroup
+        AllocatedStorage: !Ref AllocatedStorage
+        RDSSecurityGroup: !GetAtt StackSG.Outputs.RDSSecurityGroup
+        RDBSubnetGroup: !GetAtt StackSG.Outputs.RDBSubnetGroup
 
-
-  StackEC2: 
+  StackEC2:
     Type: AWS::CloudFormation::Stack
-    DependsOn: StackRDS 
-    Properties: 
-      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-EC2.yaml" 
-      TimeoutInMinutes: '60'
+    DependsOn: StackRDS
+    Properties:
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-EC2.yaml"
+      TimeoutInMinutes: "60"
       Parameters:
         DBName: !Ref DBName
         MasterUsername: !Ref MasterUsername
@@ -262,18 +260,15 @@ Resources:
         InstanceType: !Ref InstanceType
         KeyName: !Ref KeyName
         AmiType: !Ref AmiType
-        Subnet1: !GetAtt  StackVPC.Outputs.Subnet1 
-        WebSecurityGroup: !GetAtt  StackSG.Outputs.WebSecurityGroup
-        DBEndpoint:  !GetAtt  StackRDS.Outputs.DBEndpoint 
+        Subnet1: !GetAtt StackVPC.Outputs.Subnet1
+        WebSecurityGroup: !GetAtt StackSG.Outputs.WebSecurityGroup
+        DBEndpoint: !GetAtt StackRDS.Outputs.DBEndpoint
 
-  StackRoute53: 
+  StackRoute53:
     Type: AWS::CloudFormation::Stack
-    DependsOn: StackEC2 
-    Properties: 
-      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-Route53.yaml"  
-      TimeoutInMinutes: '60'
+    DependsOn: StackEC2
+    Properties:
+      TemplateURL: "https://aws-cloudformation-wordpress.s3.amazonaws.com/Wp-Route53.yaml"
+      TimeoutInMinutes: "60"
       Parameters:
-         ec2Ip:  !GetAtt  StackEC2.Outputs.ec2Ip 
-
-
- 
+        ec2Ip: !GetAtt StackEC2.Outputs.ec2Ip
